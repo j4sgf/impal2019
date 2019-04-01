@@ -1,0 +1,23 @@
+Question Answering Machine For Islamic Factual Questions
+
+This is a Machine build to answers question about Islamic matters posed in natural language.
+
+Functional Requirements
+-System should be able to take query in natural language as an input.
+-System should be able to classify input based on predefined class using SVM.
+-System should be able to extract features and keywords from input.
+-System should be able to search possible answers from closed domain corpus.
+-System should be able to determine the most suitable answer to the question.
+-System should be able to construct the answer properly.
+-System should be able to print the output to the interface.
+-System should be able to report debug logging and runtime.
+
+Non Functional Requirements
+-Performance
+The un-optimized system should have approximately sixty seconds of runtime.
+-Accessibility
+The system will be build into a docker image, so it can be accessed anywhere.
+-Usability
+The system interacted with user through command line.
+-Scalability
+In the future, the system might be implemented with GUI. The corpus might also be expanded depending on the condition.
