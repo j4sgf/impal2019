@@ -4,7 +4,7 @@ import logging
 import pandas
 import sys
 import os
-
+from multiprocessing import Pool
 from sklearn.svm import LinearSVC
 from sklearn.externals import joblib
 from scipy.sparse import csr_matrix

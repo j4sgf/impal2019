@@ -1,2 +1,1 @@
-How did Jafar fled of Indonesia?|How|How did|WRB|VBD|VBD|DESC
-What Movie featured the character Osama Bin Laden?|What|What Movie|WP|NN|VBD|ENTY
+Question|WH|WH-Bigram|WH-POS|WH-NBOR-POS|Root-POS|Class

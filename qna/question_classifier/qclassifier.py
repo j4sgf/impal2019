@@ -190,7 +190,7 @@ if __name__ == "__main__":
     start_time = time()
     en_nlp_l = spacy.load("en_core_web_md")
 
-    question = 'name 11 U.S presidents'
+    question = input("Ask your question:>")
     en_doc_l = en_nlp_l(u'' + question)
 
     question_class = classify_question(en_doc_l)
