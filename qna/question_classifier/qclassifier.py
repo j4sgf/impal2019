@@ -187,15 +187,14 @@ if __name__ == "__main__":
     from time import time
 
     logging.basicConfig(level=logging.DEBUG)
-    start_time = time()
     en_nlp_l = spacy.load("en_core_web_md")
 
     question = input("Ask your question:>")
     en_doc_l = en_nlp_l(u'' + question)
-
+    start_time = time()
     question_class = classify_question(en_doc_l)
 
     logger.info("Class: {0}".format(question_class))
 
     end_time = time()
-logger.info("Total prediction time : {0}".format(end_time - start_time))
+    logger.info("Total prediction time : {0}".format(end_time - start_time))

@@ -8,7 +8,6 @@ RUN pip install --default-timeout=3000 --trusted-host pypi.python.org -r require
 
 RUN python -m spacy download en
 RUN python -m spacy download en_core_web_md
-RUN update-java-alternatives -s java-8-oracle
 ENV ELASTICSEARCH_VER 6.1.2
 EXPOSE 80 9200 9300
 

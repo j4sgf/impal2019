@@ -156,7 +156,7 @@ if __name__ == "__main__":
 
         qtrain5000 = 'qtrain5000.txt'
         qtrain1000 = 'qtrain1000.txt'
-        trainres = 'qclasstraing.txt'
+        trainres = 'qclasstraing.csv'
 
         if should_extract:
             logger.info("Cleaning enabled.")
