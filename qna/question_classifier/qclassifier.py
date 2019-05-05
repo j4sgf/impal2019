@@ -7,7 +7,8 @@ from sklearn.svm import LinearSVC
 from sklearn.externals import joblib
 from scipy.sparse import csr_matrix
 
-
+from qna.global_constant import CORPUS_DIR
+from qna.corpus.constant import QUESTION_CLASSIFICATION_TRAINING_DATA, QUESTION_MODEL
 logger = logging.getLogger(__name__)
 
 
@@ -32,7 +33,7 @@ def transform_data_matrix(df_question_train, df_question_predict):
     df_question_trans_columns = list(
         set(df_question_train_columns + df_question_predict_columns))
 
-    logger.debug("Union Columns: {0}".format(len(df_question_trans_columns)))
+    # logger.debug("Union Columns: {0}".format(len(df_question_trans_columns)))
 
     trans_data_train = {}
 
@@ -44,7 +45,7 @@ def transform_data_matrix(df_question_train, df_question_predict):
             trans_data_train[feature] = list(df_question_train[feature])
 
     df_question_train = pandas.DataFrame(trans_data_train)
-    logger.debug("Training data: {0}".format(df_question_train.shape))
+    # logger.debug("Training data: {0}".format(df_question_train.shape))
     df_question_train = csr_matrix(df_question_train)
 
     trans_data_predict = {}
@@ -57,7 +58,7 @@ def transform_data_matrix(df_question_train, df_question_predict):
                 df_question_predict[feature])  # KeyError
 
     df_question_predict = pandas.DataFrame(trans_data_predict)
-    logger.debug("Target data: {0}".format(df_question_predict.shape))
+    # logger.debug("Target data: {0}".format(df_question_predict.shape))
     df_question_predict = csr_matrix(df_question_predict)
 
     return df_question_train, df_question_predict
@@ -91,7 +92,8 @@ def load_classifier_model(model_type="linearSVC"):
     # HELP: Not using the persistent classifier. SVC fails when it encounters previously unseen features at training.
     # Refer the comment in query_container
 
-    training_model_path = os.path.join("trainer_model.pkl")
+    training_model_path = os.path.join(
+        CORPUS_DIR, QUESTION_MODEL)
 
     if model_type == "linearSVC":
         return joblib.load(training_model_path)
@@ -148,7 +150,7 @@ def classify_question(en_doc=None, df_question_train=None, df_question_test=None
 
     if df_question_train is None:
         training_data_path = os.path.join(
-            "qclasstraing.txt")
+            CORPUS_DIR, QUESTION_CLASSIFICATION_TRAINING_DATA)
         df_question_train = pandas.read_csv(
             training_data_path, sep='|', header=0)
 
@@ -169,7 +171,7 @@ def classify_question(en_doc=None, df_question_train=None, df_question_test=None
 
     question_clf = load_classifier_model()
 
-    logger.debug("Classifier: {0}".format(question_clf))
+    # logger.debug("Classifier: {0}".format(question_clf))
 
     # predicted_class, svc_clf = predict_question_class(question_clf, df_question_predict)
     predicted_class, svc_clf = support_vector_machine(
@@ -190,11 +192,12 @@ if __name__ == "__main__":
     en_nlp_l = spacy.load("en_core_web_md")
 
     question = input("Ask your question:>")
-    en_doc_l = en_nlp_l(u'' + question)
     start_time = time()
+    en_doc_l = en_nlp_l(u'' + question)
+
     question_class = classify_question(en_doc_l)
 
     logger.info("Class: {0}".format(question_class))
 
     end_time = time()
-    logger.info("Total prediction time : {0}".format(end_time - start_time))
+logger.info("Total prediction time : {0}".format(end_time - start_time))

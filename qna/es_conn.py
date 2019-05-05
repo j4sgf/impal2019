@@ -1,7 +1,12 @@
 import logging
+import pandas as pd
+import os
+
 from elasticsearch import Elasticsearch
 from elasticsearch import helpers
-import pandas as pd
+
+from qna.global_constant import CORPUS_DIR
+from qna.corpus.constant import HADITH_CLEAN
 
 es_client = Elasticsearch(http_compress=True)
 
@@ -38,7 +43,8 @@ if __name__ == '__main__':
                "Narrator", "Verse"]
     connect_elasticsearch()
     logger.warning('Sending hadith dataframe into elasticsearch bulk API')
-    hadith_df = pd.read_csv("hadith_retreiver/hadith.csv",
+    hadith_clean = os.path.join(CORPUS_DIR, HADITH_CLEAN)
+    hadith_df = pd.read_csv(hadith_clean,
                             usecols=['Volume', 'Book', 'Number', 'Narrator', 'Verse'])
     print(hadith_df)
     es = connect_elasticsearch()

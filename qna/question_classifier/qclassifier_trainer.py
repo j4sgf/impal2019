@@ -9,6 +9,9 @@ from sklearn.svm import LinearSVC
 from sklearn.externals import joblib
 from scipy.sparse import csr_matrix
 
+from qna.global_constant import CORPUS_DIR
+from qna.corpus.constant import QUESTION_CLASSIFICATION_TRAINING_DATA, QUESTION_MODEL, QUESTION_CLASSIFICATION_RAW
+
 logger = logging.getLogger(__name__)
 
 
@@ -154,18 +157,18 @@ if __name__ == "__main__":
 
         should_extract = sys.argv[1]
 
-        qtrain5000 = 'qtrain5000.txt'
-        qtrain1000 = 'qtrain1000.txt'
-        trainres = 'qclasstraing.csv'
+        training_path = os.path.join(
+            CORPUS_DIR, QUESTION_CLASSIFICATION_TRAINING_DATA)
+        raw_path = os.path.join(CORPUS_DIR, QUESTION_CLASSIFICATION_RAW)
 
         if should_extract:
             logger.info("Cleaning enabled.")
-            clean_old_data(trainres)
+            clean_old_data(training_path)
             en_nlp = spacy.load("en_core_web_md")
 
-            extract_training_features(qtrain1000, trainres, en_nlp)
+            extract_training_features(raw_path, training_path, en_nlp)
 
-        train_qclassifier(trainres)
+        train_qclassifier(training_path)
 
         end_time = time()
         logger.info("Total training time : {0}".format(end_time - start_time))

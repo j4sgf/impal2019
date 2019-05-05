@@ -4,10 +4,11 @@ import logging
 import pandas
 import sys
 import os
-from pathos.multiprocessing import ProcessingPool as Pool
+from multiprocessing import Pool
 from sklearn.svm import LinearSVC
 from sklearn.externals import joblib
 from scipy.sparse import csr_matrix
+from time import time
 
 logger = logging.getLogger(__name__)
 
@@ -82,7 +83,7 @@ def train_qclassifier(training_data_path):
 
 
 def read_input_file(raw_data, training_data_path, en_nlp):
-
+    startt = time()
     with open(training_data_path, 'a', newline='') as csv_fp:
         csv_fp_writer = csv.writer(csv_fp, delimiter='|')
         for row in raw_data:
@@ -95,6 +96,8 @@ def read_input_file(raw_data, training_data_path, en_nlp):
             process_question(question, question_class, en_nlp, csv_fp_writer)
 
     csv_fp.close()
+    endd = time()
+    print(endd - startt)
 
 
 def clean_old_data(training_data_path):
@@ -138,7 +141,7 @@ def process_question(question, qclass, en_nlp, csv_fp_writer):
 
 def extract_training_features(raw_data_path, training_data_path, en_nlp):
     with open(raw_data_path, 'r') as fp:
-        p.map(read_input_file, fp, training_data_path, en_nlp)
+        read_input_file(fp, training_data_path, en_nlp)
         fp.close()
         logger.info("Extracted features from raw data.")
         logger.info("Excluded data where features failed to extract.")
@@ -146,8 +149,6 @@ def extract_training_features(raw_data_path, training_data_path, en_nlp):
 
 if __name__ == "__main__":
 
-    from time import time
-    p = Pool(4)
     logging.basicConfig(level=logging.DEBUG)
     if len(sys.argv) > 1:
         start_time = time()

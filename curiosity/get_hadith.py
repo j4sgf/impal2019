@@ -5,6 +5,8 @@ import pandas
 import logging
 from elasticsearch import Elasticsearch
 from elasticsearch import helpers
+from time import time
+from multiprocessing import Pool
 es_client = Elasticsearch(http_compress=True)
 
 
@@ -38,13 +40,15 @@ def append_link(link):
     return url
 
 
-def scrap_hadith(web_url1, columns):
-    hadith_sitemap = get_url(web_url)
-    hadith_url = append_link(hadith_sitemap)
+def scrap_hadith(hadith_url1):
+    columns = ["Volume", "Book", "Number",
+               "Narrator", "Verse"]
+    startt = time()
     hadith = []
-    logger.warning('All links saved. Scrapping hadith...')
+    hadith_url2 = [hadith_url1]
+    logger.warning('Scrapping hadith...')
     # Open all found links, and using Regex, append all related data to a list.
-    for allink in hadith_url:
+    for allink in hadith_url2:
         req = urllib.request.Request(allink)
         resp = urllib.request.urlopen(req)
         respData = resp.read()
@@ -52,60 +56,66 @@ def scrap_hadith(web_url1, columns):
             r'Volume\s(\d{1,2}),\sBook\s(\d{1,3}),\sNumber\s(\d{1,4})(?:[^~]+?)<strong>Narrated\sby\s([^~]+?)</strong>(?:[^~]+?)<blockquote>([^~]+?)</blockquote>', str(respData))
         for hadith_data in hadithraw:
             hadith.append(hadith_data)
-    vol = []
-    book = []
-    number = []
-    narrator = []
-    ayah = []
-    for a in hadith:
-        vol.append(a[0])
-        book.append(a[1])
-        number.append(a[2])
-        narrator.append(a[3])
-        ayah.append(a[4])
 
-    logger.warning('All hadith had been saved.')
-    not_index_list = [i[0:] for i in hadith]
-    logger.warning("Converting hadith list into a dataframe")
-    pd = pandas.DataFrame(not_index_list, columns=columns,)
-    return pd
+        vol = []
+        book = []
+        number = []
+        narrator = []
+        ayah = []
+        for a in hadith:
+            vol.append(a[0])
+            book.append(a[1])
+            number.append(a[2])
+            narrator.append(a[3])
+            ayah.append(a[4])
+    #
 
-
-def increase(i):
-    return i + 1
+    return hadith
+    endd = time()
+    print(endd - startt)
 
 
 def filterKeys(document):
     return {key: document[key] for key in columns}
 
 
-def doc_generator(df, i):
+def doc_generator(df):
     df_iter = df.iterrows()
     for index, document in df_iter:
-        increase(i)
         yield {
             "_index": 'hadith',
             "_type": "_doc",
-            "_id": i,
             "_source": filterKeys(document),
         }
     raise StopIteration
 
 
 if __name__ == "__main__":
-
-    from time import time
-
-    i = -1
+    p = Pool(35)
+    hadith_url = None
     columns = ["Volume", "Book", "Number",
                "Narrator", "Verse"]  # a csv with 5 columns
     # first element of every list in yourlist
+    start_time = time()
     web_url = 'http://www.sahih-bukhari.com'  # Variable to keep website url
-    hadith_df = scrap_hadith(web_url, columns)
-    logger.warning('Sending hadith dataframe into elasticsearch bulk API')
-    helpers.bulk(es_client, doc_generator(hadith_df, i))
+    hadith_sitemap = get_url(web_url)
+    hadith_url = append_link(hadith_sitemap)
+    print(hadith_url)
+    hadith_df = p.map(scrap_hadith, hadith_url)
 
-# pd.to_csv("hadith.csv")
+    p.terminate()
+    p.join()
+    logger.warning(
+        'Hadith has been saved. Converting hadith list into a dataframe')
+    not_index_list = [i[0:] for i in hadith_df]
+    pd = pandas.DataFrame(not_index_list, columns=columns,)
+    # with open('data.csv', 'a+') as f:
+    #     f.write('\n'.join(hadith_df))
+    # logger.warning('Sending hadith dataframe into elasticsearch bulk API')
+    # helpers.bulk(es_client, doc_generator(hadith_df))
+    end_time = time()
+    logger.warning("Total scrapping time : {0}".format(end_time - start_time))
+    # pd.to_csv("hadith.csv")
 # pd.to_json(r"hadith.json", orient='records', lines=True)
 # for j, k, l, m, n in zip(vol, book, number, narrator, ayah):
 #     # F.write("Vol : " + j)

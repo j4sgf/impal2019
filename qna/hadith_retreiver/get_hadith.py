@@ -5,8 +5,10 @@ import pandas
 import logging
 from elasticsearch import Elasticsearch
 from elasticsearch import helpers
-es_client = Elasticsearch(http_compress=True)
+from time import time
+from multiprocessing import Pool
 
+from qna.global_constant import CORPUS_DIR
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(format='%(asctime)s - %(message)s',
@@ -39,6 +41,7 @@ def append_link(link):
 
 
 def scrap_hadith(web_url1, columns):
+    startt = time()
     hadith_sitemap = get_url(web_url)
     hadith_url = append_link(hadith_sitemap)
     hadith = []
@@ -69,26 +72,11 @@ def scrap_hadith(web_url1, columns):
     not_index_list = [i[0:] for i in hadith]
     pd = pandas.DataFrame(not_index_list, columns=columns,)
     return pd
-
-
-def filterKeys(document):
-    return {key: document[key] for key in columns}
-
-
-def doc_generator(df):
-    df_iter = df.iterrows()
-    for index, document in df_iter:
-        yield {
-            "_index": 'hadith',
-            "_type": "_doc",
-            "_source": filterKeys(document),
-        }
-    raise StopIteration
+    endd = time()
+    print(endd - startt)
 
 
 if __name__ == "__main__":
-
-    from time import time
 
     columns = ["Volume", "Book", "Number",
                "Narrator", "Verse"]  # a csv with 5 columns
@@ -96,11 +84,9 @@ if __name__ == "__main__":
     start_time = time()
     web_url = 'http://www.sahih-bukhari.com'  # Variable to keep website url
     hadith_df = scrap_hadith(web_url, columns)
-    logger.warning('Sending hadith dataframe into elasticsearch bulk API')
-    helpers.bulk(es_client, doc_generator(hadith_df))
     end_time = time()
     logger.warning("Total scrapping time : {0}".format(end_time - start_time))
-# pd.to_csv("hadith.csv")
+    hadith_df.to_csv("hadith.csv")
 # pd.to_json(r"hadith.json", orient='records', lines=True)
 # for j, k, l, m, n in zip(vol, book, number, narrator, ayah):
 #     # F.write("Vol : " + j)
