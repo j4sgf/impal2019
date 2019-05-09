@@ -136,9 +136,9 @@ if __name__ == "__main__":
 
     logging.basicConfig(level=logging.DEBUG)
 
-    question = "name 11 U.S president"
+    question = "Who is a good muslim?"
 
     en_nlp_l = spacy.load("en_core_web_md")
     en_doc_l = en_nlp_l(u'' + question)
 
-logger.info("Extracted: {0}".format(extract_features("", en_doc_l, True)))
+    logger.info("Extracted: {0}".format(extract_features("", en_doc_l, True)))

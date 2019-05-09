@@ -200,4 +200,4 @@ if __name__ == "__main__":
     logger.info("Class: {0}".format(question_class))
 
     end_time = time()
-logger.info("Total prediction time : {0}".format(end_time - start_time))
+    logger.info("Total prediction time : {0}".format(end_time - start_time))

@@ -7,7 +7,8 @@ import sys
 from sklearn.model_selection import train_test_split
 from sklearn.model_selection import cross_val_score
 # from scipy.sparse import csr_matrix
-
+from qna.global_constant import CORPUS_DIR
+from qna.corpus.constant import QUESTION_CLASSIFICATION_TRAINING_DATA
 from qna.question_classifier.qclassifier import classify_question
 
 
@@ -16,7 +17,8 @@ class TestClassifyQuestion(TestCase):
     classification_score = 0.60
 
     def test_classify_question(self):
-        training_data_path = 'test/qclasstraing.txt'
+        training_data_path = os.path.join(
+            CORPUS_DIR, QUESTION_CLASSIFICATION_TRAINING_DATA)
         df_question = pandas.read_csv(training_data_path, sep='|', header=0)
         df_question_train, df_question_test = train_test_split(
             df_question, test_size=0.2, random_state=42)

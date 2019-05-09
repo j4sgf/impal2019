@@ -1,6 +1,6 @@
 import logging
 
-from query_container import QueryContainer
+from qna.container.query_container import QueryContainer
 '''
 The Query is constructed just to show relationship amongst different features in the feature set.
 A conjunction is a part of speech that is used to connect words, phrases, clauses, or sentences.
@@ -117,4 +117,4 @@ if __name__ == "__main__":
     for sent in en_doc.sents:
         get_detail(sent)
         query.append(get_query(sent, features))
-logger.info("Query: {0}".format(repr(query)))
+        logger.info("Query: {0}".format(repr(query)))
